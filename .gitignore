@@ -1,0 +1,7 @@
+
+*.txt
+13D/.DS_Store
+.DS_Store
+*.pyc
+*.idx
+full_index.csv

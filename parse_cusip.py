@@ -25,9 +25,13 @@ def parse(file):
 
     record = 0
     cik = None
+    comnam = None
     for line in lines:
         if 'SUBJECT COMPANY' in line:
             record = 1
+        if 'COMPANY CONFORMED NAME' in line and record == 1:
+            comnam = line.split('\t\t\t')[-1].strip()
+
         if 'CENTRAL INDEX KEY' in line and record == 1:
             cik = line.split('\t\t\t')[-1].strip()
             break
@@ -54,7 +58,7 @@ def parse(file):
     if args.debug:
         print(cusip)
 
-    return [file, cik, cusip]
+    return [file, cik, cusip, comnam]
 
 
 def main():

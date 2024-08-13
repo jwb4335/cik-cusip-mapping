@@ -7,6 +7,8 @@ from pathlib import Path
 import pandas as pd
 import requests
 
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filing", type=str)
@@ -25,11 +27,19 @@ if __name__ == "__main__":
             if filing in row["form"]:
                 to_dl.append(row)
 
-    len_ = len(to_dl)
-    print(len_)
-    print("start to download")
+    iss_cik = pd.read_stata("/Users/johnbarry/Dropbox/ceo_pay_competition/input_data/incentive_lab/US/CompanyFY.dta")
+    
+    iss_cik = iss_cik.drop_duplicates(subset = ['cik'])
+    
+    cik_list = pd.to_numeric(iss_cik['cik']).tolist()
+    
+    cik_list_sec = [(i,int(row["cik"].strip())) for (i,row) in enumerate(to_dl)]
 
-    for n, row in enumerate(to_dl):
+    to_keep = [to_dl[i] for i in [i for (i,row) in enumerate(cik_list_sec) if row[1] in cik_list]]
+    
+    len_ = len(to_keep)
+    
+    for n, row in enumerate(to_keep):
         print(f"{n} out of {len_}")
         cik = row["cik"].strip()
         date = row["date"].strip()

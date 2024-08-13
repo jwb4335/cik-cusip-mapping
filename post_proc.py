@@ -2,9 +2,14 @@ import sys
 
 import pandas as pd
 
-files = sys.argv[1:]
+files = sys.argv[1:-1]
 
-df = [pd.read_csv(f, names=['f', 'cik', 'cusip']).dropna() for f in files]
+save = sys.argv[-1]
+
+print(files)
+print(save)
+
+df = [pd.read_csv(f, names=['f', 'cik', 'cusip','comnam_sec']).dropna() for f in files]
 df = pd.concat(df)
 
 df['leng'] = df.cusip.map(len)
@@ -20,5 +25,14 @@ df['cusip8'] = df.cusip.str[:8]
 
 df.cik = pd.to_numeric(df.cik)
 
-df = df[['cik', 'cusip6',
-         'cusip8']].drop_duplicates().to_csv('cik-cusip-maps.csv', index=False)
+df['ym'] = df['f'].str.split("/").str[1].str.split("_")
+df['year'] = pd.to_numeric(df['ym'].str[0])
+df['month'] =  pd.to_numeric(df['ym'].str[1])
+
+df = df[['cik'] + [x for x in df.columns if 'cusip' in x] + ['comnam_sec','year','month']]
+df = df.drop_duplicates(subset = ['cik','year','month','cusip8'])
+df = df.sort_values(by = ['cik','year','month']).reset_index(drop=True)
+
+
+
+df.to_csv(save)
